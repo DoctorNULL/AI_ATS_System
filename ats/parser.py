@@ -515,6 +515,110 @@ class CVParser(object):
 
         return result
 
+    def _parse_courses(self, data:list[str]) -> list[CourseInfo]:
+        result : list[CourseInfo] = []
+
+        section = self._get_section(data)
+
+        section = section.split()
+
+        section = [x.strip() for x in section]
+
+        line = ""
+        lines = []
+        for word in section:
+            if word.isalpha():
+                line += word + " "
+            elif word[:-1].isalpha():
+                line += word[:-1] + " " + word[-1]
+            elif re.fullmatch(self.special_words_pattern, word):
+                line += word + " "
+            else:
+                if line:
+                    lines.append(line.strip())
+                    line = ""
+
+                lines.append(word)
+        if line:
+            lines.append(line)
+
+        spliter = RecursiveCharacterTextSplitter(
+            chunk_size= self.config.text_spliter_chunk_size,
+            chunk_overlap= self.config.text_spliter_chunk_overlap
+        )
+
+        current_title = ""
+        current_start = ""
+        current_end = ""
+        institution = ""
+        current_detail = ""
+
+        skip_counter = 0
+        for i, line in enumerate(lines):
+
+            if skip_counter:
+                skip_counter -= 1
+                continue
+
+            if (line.istitle()
+                    or all([word.isupper() or word[0].isupper() for word in line.split()])):
+
+                if current_title and institution:
+                    x : CourseInfo = {
+                        "Title": current_title,
+                        "Institution": institution,
+                        "Details": spliter.split_text(current_detail)
+                    }
+
+                    if current_start:
+                        x["Start"] = current_start
+
+                    if current_end:
+                        x["End"] = current_end
+
+                    result.append(x)
+                    institution = ""
+                    current_start = ""
+                    current_end = ""
+                    current_detail = ""
+
+                current_title = line
+            elif line == "<line>":
+                continue
+            else:
+                if current_title:
+                    if line in self.present_keywords:
+                        current_end = line
+                    elif re.fullmatch(self.date_pattern, line):
+                        try:
+                            if re.fullmatch(self.date_pattern, lines[i + 2]) or lines[i + 2] in self.present_keywords:
+                                current_start = line
+                                current_end = lines[i + 2]
+                                skip_counter = 2
+                        except:
+                            pass
+                    elif not institution:
+                        institution = line
+                    else:
+                        current_detail += line + " "
+
+        if current_title and institution:
+            x : CourseInfo = {
+                "Title": current_title,
+                "Institution": institution,
+                "Details": spliter.split_text(current_detail)
+            }
+
+            if current_start:
+                x["Start"] = current_start
+
+            if current_end:
+                x["End"] = current_end
+
+            result.append(x)
+
+        return result
+
     def _parse_list(self, data: list[str]) -> list[str]:
         result = []
 
@@ -535,6 +639,7 @@ class CVParser(object):
         experience : list[ExperienceInfo] = []
         projects : list[ProjectInfo] = []
         publications : list[PublicationInfo] = []
+        courses : list[CourseInfo] = []
 
         line = get_line(current_data)
 
@@ -563,6 +668,9 @@ class CVParser(object):
                 case CVSection.Publication:
                     publications = self._parse_publications(current_data)
 
+                case CVSection.Courses:
+                    courses = self._parse_courses(current_data)
+
 
             line = get_line(current_data)
 
@@ -572,7 +680,7 @@ class CVParser(object):
             "Email": base_info["Email"],
             "Phone": base_info["Phone"],
             "Summary": summary,
-            "Courses": [],
+            "Courses": courses,
             "Education": education,
             "Experience": experience,
             "Languages": langs,
