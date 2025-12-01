@@ -29,14 +29,13 @@ class ExperienceInfo(TypedDict):
 
 class PublicationInfo(TypedDict):
     Title: str
-    Publishers: list[str]
+    Publishers: str
     Date: NotRequired[str]
     Details: list[str]
 
 class CourseInfo(TypedDict):
     Title: str
     Institution: str
-    Location: NotRequired[str]
     Start: NotRequired[str]
     End: NotRequired[str]
     Details: list[str]

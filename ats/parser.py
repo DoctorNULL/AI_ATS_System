@@ -4,6 +4,7 @@ from .config import ATSConfig
 from .job_title_info import JobTitles
 import validators
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+import re
 
 def get_line(data: list[str]) -> str:
     if not data:
@@ -25,6 +26,8 @@ class CVParser(object):
         else:
             self.config = config
 
+        self.special_words_pattern = r"\w*[\\\./@!$#+%&]+\w*"
+        self.date_pattern = r"((0[1-9]|[12]\d|3[01])/(0[1-9]|1[0-2])/(19|20)\d{2}|(0[1-9]|1[0-2])/(19|20)\d{2}|(19|20)\d{2})"
         self.present_keywords = [
             "present",
             "current",
@@ -49,6 +52,17 @@ class CVParser(object):
             "up to this date"
         ]
 
+    def _get_section(self, data:list[str], section_seperator = " <line> ") -> str:
+        section = ""
+        line = get_line(data)
+
+        while self.sections.find_section(line) == CVSection.UnKnown and line:
+            section += line + section_seperator
+            line = get_line(data)
+
+        data.insert(0, line)
+
+        return section
 
     def _parse_base_info(self, data: list[str]) -> dict[str, str]:
 
@@ -80,14 +94,8 @@ class CVParser(object):
     def _parse_summary(self, data: list[str]) -> list[str]:
 
         result = []
-        line = get_line(data)
-        section = ""
 
-        while self.sections.find_section(line) == CVSection.UnKnown:
-            section += line + " "
-            line = get_line(data)
-
-        data.insert(0, line)
+        section = self._get_section(data)
 
         spliter = RecursiveCharacterTextSplitter(
             chunk_size= self.config.text_spliter_chunk_size,
@@ -117,14 +125,7 @@ class CVParser(object):
             "polytechnic", "high", "secondary", "senior", "secondary",
         ]
 
-        section = ""
-        line = get_line(data)
-
-        while self.sections.find_section(line) == CVSection.UnKnown:
-            section += line + " <line> "
-            line = get_line(data)
-
-        data.insert(0, line)
+        section = self._get_section(data)
 
         section = section.split()
 
@@ -223,14 +224,7 @@ class CVParser(object):
     def _parse_experience(self, data:list[str]) -> list[ExperienceInfo]:
         result : list[ExperienceInfo] = []
 
-        section = ""
-        line = get_line(data)
-
-        while self.sections.find_section(line) == CVSection.UnKnown:
-            section += line + " <line> "
-            line = get_line(data)
-
-        data.insert(0, line)
+        section = self._get_section(data)
 
         section = section.split()
 
@@ -300,14 +294,16 @@ class CVParser(object):
                 if current_title:
                     if line in self.present_keywords:
                         current_end = line
-                    elif not current_company and line.replace(",", "").replace(".", "").replace(" ", "").isalpha():
+                    elif (not current_company and (line.replace(",", "").replace(".", "").replace(" ", "").isalpha()
+                                                  or re.fullmatch(self.special_words_pattern, line))
+                          and not re.fullmatch(self.date_pattern, line) and not line in self.present_keywords):
                         current_company = line
                     elif (line.replace("\"", "").replace("'", "").replace(" ", "").isalpha()
                           or line[:-1].replace("\"", "").replace("'", "").replace(" ", "").isalpha()):
                         current_detail += line + " "
-                    elif len(line.split("/")) > 1:
+                    elif re.fullmatch(self.date_pattern, line):
                         try:
-                            if len(lines[i + 2].split("/")) > 1 or lines[i+2].lower() in self.present_keywords:
+                            if re.fullmatch(self.date_pattern, lines[i + 2]) or lines[i + 2] in self.present_keywords:
                                 current_start = line
                                 current_end = lines[i + 2]
                                 skip_counter = 2
@@ -328,19 +324,201 @@ class CVParser(object):
                 x["Start"] = current_start
 
             result.append(x)
-        print(result)
+
+        return result
+
+    def _parse_project(self, data:list[str]) -> list[ProjectInfo]:
+        result : list[ProjectInfo] = []
+
+        section = self._get_section(data)
+
+        section = section.split()
+
+        section = [x.strip() for x in section]
+
+        line = ""
+        lines = []
+        for word in section:
+            if word.isalpha():
+                line += word + " "
+            elif word[:-1].isalpha():
+                line += word[:-1] + " " + word[-1]
+            elif re.fullmatch(self.special_words_pattern, word):
+                line += word + " "
+            else:
+                if line:
+                    lines.append(line.strip())
+                    line = ""
+
+                lines.append(word)
+        if line:
+            lines.append(line)
+
+        spliter = RecursiveCharacterTextSplitter(
+            chunk_size= self.config.text_spliter_chunk_size,
+            chunk_overlap= self.config.text_spliter_chunk_overlap
+        )
+
+        current_title = ""
+        current_start = ""
+        current_end = ""
+        current_detail = ""
+
+        skip_counter = 0
+        for i, line in enumerate(lines):
+
+            if skip_counter:
+                skip_counter -= 1
+                continue
+
+            if (line.istitle()
+                    or all([word.isupper() or word[0].isupper() for word in line.split()])):
+
+                if current_title:
+                    x : ProjectInfo = {
+                        "Title": current_title,
+                        "Details": spliter.split_text(current_detail)
+                    }
+
+                    if current_end:
+                        x["End"] = current_end
+
+                    if current_start:
+                        x["Start"] = current_start
+
+                    result.append(x)
+                    current_start = ""
+                    current_end = ""
+                    current_detail = ""
+
+                current_title = line
+            elif line == "<line>":
+                continue
+            else:
+                if current_title:
+                    if line in self.present_keywords:
+                        current_end = line
+                    elif re.fullmatch(self.date_pattern, line):
+                        try:
+                            if re.fullmatch(self.date_pattern, lines[i + 2]) or lines[i + 2] in self.present_keywords:
+                                current_start = line
+                                current_end = lines[i + 2]
+                                skip_counter = 2
+                        except:
+                            pass
+                    else:
+                        current_detail += line + " "
+
+        if current_title:
+            x : ProjectInfo = {
+                "Title": current_title,
+                "Details": spliter.split_text(current_detail)
+            }
+
+            if current_end:
+                x["End"] = current_end
+
+            if current_start:
+                x["Start"] = current_start
+
+            result.append(x)
+
+        return result
+
+    def _parse_publications(self, data:list[str]) -> list[PublicationInfo]:
+        result : list[PublicationInfo] = []
+
+        section = self._get_section(data)
+
+        section = section.split()
+
+        section = [x.strip() for x in section]
+
+        line = ""
+        lines = []
+        for word in section:
+            if word.isalpha():
+                line += word + " "
+            elif word[:-1].isalpha():
+                line += word[:-1] + " " + word[-1]
+            elif re.fullmatch(self.special_words_pattern, word):
+                line += word + " "
+            else:
+                if line:
+                    lines.append(line.strip())
+                    line = ""
+
+                lines.append(word)
+        if line:
+            lines.append(line)
+
+        spliter = RecursiveCharacterTextSplitter(
+            chunk_size= self.config.text_spliter_chunk_size,
+            chunk_overlap= self.config.text_spliter_chunk_overlap
+        )
+
+        current_title = ""
+        current_date = ""
+        publishers = ""
+        current_detail = ""
+
+        skip_counter = 0
+        for i, line in enumerate(lines):
+
+            if skip_counter:
+                skip_counter -= 1
+                continue
+
+            if (line.istitle()
+                    or all([word.isupper() or word[0].isupper() for word in line.split()])):
+
+                if current_title:
+                    x : PublicationInfo = {
+                        "Title": current_title,
+                        "Publishers": publishers,
+                        "Details": spliter.split_text(current_detail)
+                    }
+
+                    if current_date:
+                        x["Date"] = current_date
+
+                    result.append(x)
+                    publishers = ""
+                    current_date = ""
+                    current_detail = ""
+
+                current_title = line
+            elif line == "<line>":
+                continue
+            else:
+                if current_title:
+                    if line in self.present_keywords:
+                        current_date = line
+                    elif re.fullmatch(self.date_pattern, line):
+                        current_date = line
+                    elif not publishers and all([word.isupper() or word.istitle for word in line.split(",")]):
+                        publishers = line
+                    else:
+                        current_detail += line + " "
+
+        if current_title:
+            x : PublicationInfo = {
+                "Title": current_title,
+                "Publishers": publishers,
+                "Details": spliter.split_text(current_detail)
+            }
+
+            if current_date:
+                x["Date"] = current_date
+
+            result.append(x)
+
         return result
 
     def _parse_list(self, data: list[str]) -> list[str]:
-        line = get_line(data)
         result = []
 
-        section = ""
-        while self.sections.find_section(line) == CVSection.UnKnown:
-            section += line + " "
-            line = get_line(data)
-
-        data.insert(0, line)
+        section = self._get_section(data, " ")
 
         result += section.split()
 
@@ -355,10 +533,12 @@ class CVParser(object):
         skills : list[str] = []
         langs : list[str] = []
         experience : list[ExperienceInfo] = []
+        projects : list[ProjectInfo] = []
+        publications : list[PublicationInfo] = []
 
         line = get_line(current_data)
 
-        while line:
+        while current_data:
             section = self.sections.find_section(line)
             match section:
 
@@ -377,13 +557,11 @@ class CVParser(object):
                 case CVSection.Experience:
                     experience = self._parse_experience(current_data)
 
-                case CVSection.UnKnown:
-                    while section == CVSection.UnKnown and line:
-                        line = get_line(current_data)
-                        section = self.sections.find_section(line)
+                case CVSection.Projects:
+                    projects = self._parse_project(current_data)
 
-                    current_data.insert(0, line)
-
+                case CVSection.Publication:
+                    publications = self._parse_publications(current_data)
 
 
             line = get_line(current_data)
@@ -398,8 +576,8 @@ class CVParser(object):
             "Education": education,
             "Experience": experience,
             "Languages": langs,
-            "Projects": [],
-            "Publications": [],
+            "Projects": projects,
+            "Publications": publications,
             "Skills": skills
         }
 
