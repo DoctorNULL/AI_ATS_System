@@ -262,7 +262,14 @@ class CVParser(object):
         current_end = ""
         current_detail = ""
         current_company = ""
+
+        skip_counter = 0
         for i, line in enumerate(lines):
+
+            if skip_counter:
+                skip_counter -= 1
+                continue
+
             title = self.job_titles.find_title(line, self.config.title_similarity_threshold)
 
             if title:
@@ -293,15 +300,17 @@ class CVParser(object):
                 if current_title:
                     if line in self.present_keywords:
                         current_end = line
-                    elif not current_company and line.replace(",", "").replace(".", "").isalpha():
+                    elif not current_company and line.replace(",", "").replace(".", "").replace(" ", "").isalpha():
                         current_company = line
-                    elif line.replace("\"", "").replace("'", "").isalpha() or line[:-1].replace("\"", "").replace("'", "").isalpha():
+                    elif (line.replace("\"", "").replace("'", "").replace(" ", "").isalpha()
+                          or line[:-1].replace("\"", "").replace("'", "").replace(" ", "").isalpha()):
                         current_detail += line + " "
                     elif len(line.split("/")) > 1:
                         try:
-                            if (lines[i + 2].split("/")) > 1 or lines[i+2] in self.present_keywords:
+                            if len(lines[i + 2].split("/")) > 1 or lines[i+2].lower() in self.present_keywords:
                                 current_start = line
-                                current_end = line[i + 2]
+                                current_end = lines[i + 2]
+                                skip_counter = 2
                         except:
                             pass
 

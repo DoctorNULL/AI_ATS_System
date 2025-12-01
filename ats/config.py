@@ -3,7 +3,7 @@ class ATSConfig:
                  text_spliter_chunk_size = 100,
                  text_spliter_chunk_overlap = 20,
                  text_similarity_threshold = 0.9,
-                 title_similarity_threshold = 0.7
+                 title_similarity_threshold = 0.85
                  ):
 
         self.text_spliter_chunk_size = text_spliter_chunk_size
