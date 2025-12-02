@@ -1,8 +1,7 @@
-from .base import CV, CourseInfo, ProjectInfo, PublicationInfo, ExperienceInfo, EducationInfo
+from ats.cv.base import CV, CourseInfo, ProjectInfo, PublicationInfo, ExperienceInfo, EducationInfo
 
 def print_courses(courses: list[CourseInfo]):
     for course in courses:
-        print("-" * 20)
         print(course["Title"])
         print(course["Institution"])
 
@@ -12,11 +11,10 @@ def print_courses(courses: list[CourseInfo]):
             print(course["End"])
 
         print("\n".join(course["Details"]))
-        print("-" * 20)
+        print("\n" * 2)
 
 def print_experience(experiences: list[ExperienceInfo]):
     for experience in experiences:
-        print("-" * 20)
         print(experience["Title"])
         print(experience["Company"])
 
@@ -26,11 +24,10 @@ def print_experience(experiences: list[ExperienceInfo]):
             print(experience["End"])
 
         print("\n".join(experience["Details"]))
-        print("-" * 20)
+        print("\n" * 2)
 
 def print_project(projects: list[ProjectInfo]):
     for experience in projects:
-        print("-" * 20)
         print(experience["Title"])
 
         if experience.get("Start", "") and experience.get("End", ""):
@@ -39,22 +36,20 @@ def print_project(projects: list[ProjectInfo]):
             print(experience["End"])
 
         print("\n".join(experience["Details"]))
-        print("-" * 20)
+        print("\n" * 2)
 
 def print_publication(publications: list[PublicationInfo]):
     for publication in publications:
-        print("-" * 20)
         print(publication["Title"])
 
         if publication.get("Date", ""):
             print(publication["Date"])
 
         print("\n".join(publication["Details"]))
-        print("-" * 20)
+        print("\n" * 2)
 
 def print_education(educations: list[EducationInfo]):
     for education in educations:
-        print("-" * 20)
         print(education["Title"])
         print(education["Location"])
 
@@ -63,7 +58,7 @@ def print_education(educations: list[EducationInfo]):
         elif education.get("End", ""):
             print(education["End"])
 
-        print("-" * 20)
+        print("\n" * 2)
 
 def print_cv(cv: CV):
     print(cv["Name"])
@@ -71,33 +66,41 @@ def print_cv(cv: CV):
     print(f"Email : {cv["Email"]} - Phone : {cv["Phone"]}" + f" - Location : {cv["Location"]}" if cv.get("Location", "") else "")
 
     if cv["Summary"]:
-        print("\n\nSummary\n")
+        print("Summary")
+        print("-" * 50)
         print("\n".join(cv["Summary"]))
 
     if cv["Education"]:
-        print("\n\nEducation\n")
+        print("Education")
+        print("-" * 50)
         print_education(cv["Education"])
 
     if cv["Skills"]:
-        print("\n\nSkills\n")
+        print("Skills")
+        print("-" * 50)
         print(" - ".join(cv["Skills"]))
 
     if cv["Languages"]:
-        print("\n\nLanguages\n")
+        print("Languages")
+        print("-" * 50)
         print(" - ".join(cv["Languages"]))
 
     if cv["Experience"]:
-        print("\n\nExperience\n")
+        print("Experience")
+        print("-" * 50)
         print_experience(cv["Experience"])
 
     if cv["Projects"]:
-        print("\n\nProjects\n")
+        print("Projects")
+        print("-" * 50)
         print_project(cv["Projects"])
 
     if cv["Publications"]:
-        print("\n\nPublications\n")
+        print("Publications")
+        print("-" * 50)
         print_publication(cv["Publications"])
 
     if cv["Courses"]:
-        print("\n\nCourses\n")
+        print("Courses")
+        print("-" * 50)
         print_courses(cv["Courses"])

@@ -232,6 +232,232 @@ class JobTitles:
         "Freelancer"
     ]
 
+    job_field_mapping = {
+        # Management & Leadership
+        "Manager": "Management",
+        "Project Manager": "Management",
+        "Program Manager": "Management",
+        "Product Manager": "Management",
+        "Team Lead": "Management",
+        "Director": "Management",
+        "Operations Manager": "Management",
+        "HR Manager": "Management",
+        "Finance Manager": "Management",
+        "Marketing Manager": "Management",
+        "Sales Manager": "Management",
+        "General Manager": "Management",
+        "Chief Executive Officer": "Management",
+        "CEO": "Management",
+        "Chief Operating Officer": "Management",
+        "COO": "Management",
+        "Chief Financial Officer": "Management",
+        "CFO": "Management",
+        "Chief Technology Officer": "Management",
+        "CTO": "Management",
+        "Chief Marketing Officer": "Management",
+        "CMO": "Management",
+        "Branch Manager": "Management",
+        "Assistant Manager": "Management",
+        "Deputy Manager": "Management",
+        "Regional Manager": "Management",
+        "Area Manager": "Management",
+
+        # Technical / IT
+        "Software Engineer": "Technical/IT",
+        "Senior Software Engineer": "Technical/IT",
+        "Junior Software Engineer": "Technical/IT",
+        "Developer": "Technical/IT",
+        "Full Stack Developer": "Technical/IT",
+        "Frontend Developer": "Technical/IT",
+        "Backend Developer": "Technical/IT",
+        "Mobile Developer": "Technical/IT",
+        "Web Developer": "Technical/IT",
+        "QA Engineer": "Technical/IT",
+        "Quality Assurance Engineer": "Technical/IT",
+        "DevOps Engineer": "Technical/IT",
+        "System Administrator": "Technical/IT",
+        "Network Engineer": "Technical/IT",
+        "Data Analyst": "Technical/IT",
+        "Data Scientist": "Technical/IT",
+        "Machine Learning Engineer": "Technical/IT",
+        "AI Engineer": "Technical/IT",
+        "Cloud Engineer": "Technical/IT",
+        "Database Administrator": "Technical/IT",
+        "IT Support Specialist": "Technical/IT",
+        "IT Manager": "Technical/IT",
+        "Cybersecurity Analyst": "Technical/IT",
+        "Security Engineer": "Technical/IT",
+        "UX Designer": "Technical/IT",
+        "UI Designer": "Technical/IT",
+        "UI/UX Designer": "Technical/IT",
+        "Graphic Designer": "Creative/Media",
+        "Technical Lead": "Technical/IT",
+        "Software Architect": "Technical/IT",
+        "Solution Architect": "Technical/IT",
+        "Product Owner": "Technical/IT",
+        "Scrum Master": "Technical/IT",
+
+        # Business & Administration
+        "Business Analyst": "Business/Administration",
+        "Consultant": "Business/Administration",
+        "Strategy Consultant": "Business/Administration",
+        "Operations Analyst": "Business/Administration",
+        "Executive Assistant": "Business/Administration",
+        "Administrative Assistant": "Business/Administration",
+        "Office Manager": "Business/Administration",
+        "Coordinator": "Business/Administration",
+        "Supervisor": "Business/Administration",
+        "Specialist": "Business/Administration",
+        "Project Coordinator": "Business/Administration",
+        "Program Coordinator": "Business/Administration",
+        "Business Development Manager": "Business/Administration",
+        "Account Manager": "Business/Administration",
+        "Account Executive": "Sales & Marketing",
+        "Client Relationship Manager": "Business/Administration",
+        "Client Services Manager": "Business/Administration",
+        "Customer Success Manager": "Customer Service/Support",
+        "Operations Coordinator": "Business/Administration",
+
+        # Finance & Accounting
+        "Accountant": "Finance/Accounting",
+        "Senior Accountant": "Finance/Accounting",
+        "Financial Analyst": "Finance/Accounting",
+        "Senior Financial Analyst": "Finance/Accounting",
+        "Auditor": "Finance/Accounting",
+        "Internal Auditor": "Finance/Accounting",
+        "External Auditor": "Finance/Accounting",
+        "Bookkeeper": "Finance/Accounting",
+        "Controller": "Finance/Accounting",
+        "Treasurer": "Finance/Accounting",
+        "Payroll Specialist": "Finance/Accounting",
+        "Finance Officer": "Finance/Accounting",
+        "Investment Analyst": "Finance/Accounting",
+        "Tax Consultant": "Finance/Accounting",
+        "Tax Manager": "Finance/Accounting",
+        "Budget Analyst": "Finance/Accounting",
+        "Credit Analyst": "Finance/Accounting",
+        "Risk Manager": "Finance/Accounting",
+
+        # Sales & Marketing
+        "Sales Representative": "Sales & Marketing",
+        "Sales Executive": "Sales & Marketing",
+        "Sales Associate": "Sales & Marketing",
+        "Marketing Specialist": "Sales & Marketing",
+        "Marketing Coordinator": "Sales & Marketing",
+        "Digital Marketing Specialist": "Sales & Marketing",
+        "SEO Specialist": "Sales & Marketing",
+        "Social Media Manager": "Sales & Marketing",
+        "Brand Manager": "Sales & Marketing",
+        "Content Writer": "Creative/Media",
+        "Copywriter": "Creative/Media",
+        "Advertising Manager": "Sales & Marketing",
+        "Business Development Executive": "Sales & Marketing",
+        "Regional Sales Manager": "Sales & Marketing",
+        "Sales Director": "Sales & Marketing",
+        "Marketing Director": "Sales & Marketing",
+        "Product Marketing Manager": "Sales & Marketing",
+        "Email Marketing Specialist": "Sales & Marketing",
+        "Affiliate Manager": "Sales & Marketing",
+
+        # Human Resources
+        "HR Specialist": "Human Resources",
+        "HR Coordinator": "Human Resources",
+        "HR Manager": "Human Resources",
+        "Recruiter": "Human Resources",
+        "Talent Acquisition Specialist": "Human Resources",
+        "Training Coordinator": "Human Resources",
+        "Learning and Development Manager": "Human Resources",
+        "HR Generalist": "Human Resources",
+        "HR Business Partner": "Human Resources",
+        "Compensation and Benefits Manager": "Human Resources",
+        "Employee Relations Specialist": "Human Resources",
+        "Organizational Development Manager": "Human Resources",
+        "HR Director": "Human Resources",
+
+        # Operations & Logistics
+        "Logistics Manager": "Operations/Logistics",
+        "Supply Chain Manager": "Operations/Logistics",
+        "Inventory Specialist": "Operations/Logistics",
+        "Warehouse Manager": "Operations/Logistics",
+        "Procurement Specialist": "Operations/Logistics",
+        "Purchasing Manager": "Operations/Logistics",
+        "Fleet Manager": "Operations/Logistics",
+        "Transportation Coordinator": "Operations/Logistics",
+        "Shipping and Receiving Clerk": "Operations/Logistics",
+        "Facility Manager": "Operations/Logistics",
+        "Plant Manager": "Operations/Logistics",
+        "Production Manager": "Operations/Logistics",
+        "Manufacturing Supervisor": "Operations/Logistics",
+
+        # Healthcare
+        "Nurse": "Healthcare",
+        "Registered Nurse": "Healthcare",
+        "Licensed Practical Nurse": "Healthcare",
+        "Doctor": "Healthcare",
+        "Physician": "Healthcare",
+        "Medical Assistant": "Healthcare",
+        "Pharmacist": "Healthcare",
+        "Therapist": "Healthcare",
+        "Physical Therapist": "Healthcare",
+        "Occupational Therapist": "Healthcare",
+        "Medical Technologist": "Healthcare",
+        "Lab Technician": "Healthcare",
+        "Healthcare Administrator": "Healthcare",
+        "Clinical Coordinator": "Healthcare",
+        "Surgeon": "Healthcare",
+        "Dentist": "Healthcare",
+
+        # Education
+        "Teacher": "Education",
+        "Teaching Assistant": "Education",
+        "Lecturer": "Education",
+        "Instructor": "Education",
+        "Professor": "Education",
+        "Assistant Professor": "Education",
+        "Tutor": "Education",
+        "Trainer": "Education",
+        "Education Coordinator": "Education",
+        "Academic Advisor": "Education",
+        "Research Associate": "Education",
+        "Research Assistant": "Education",
+        "Principal": "Education",
+        "Vice Principal": "Education",
+        "Dean": "Education",
+
+        # Creative / Media
+        "Visual Designer": "Creative/Media",
+        "Art Director": "Creative/Media",
+        "Creative Director": "Creative/Media",
+        "Animator": "Creative/Media",
+        "Video Editor": "Creative/Media",
+        "Photographer": "Creative/Media",
+        "Illustrator": "Creative/Media",
+        "Content Creator": "Creative/Media",
+        "Writer": "Creative/Media",
+        "Editor": "Creative/Media",
+        "Producer": "Creative/Media",
+        "Director of Photography": "Creative/Media",
+        "Social Media Content Creator": "Creative/Media",
+
+        # Customer Service / Support
+        "Customer Service Representative": "Customer Service/Support",
+        "Customer Support Specialist": "Customer Service/Support",
+        "Support Agent": "Customer Service/Support",
+        "Call Center Agent": "Customer Service/Support",
+        "Service Manager": "Customer Service/Support",
+        "Client Support Specialist": "Customer Service/Support",
+        "Help Desk Analyst": "Customer Service/Support",
+        "Technical Support Engineer": "Customer Service/Support",
+        "Customer Success Specialist": "Customer Service/Support",
+        "Account Support Manager": "Customer Service/Support",
+        "Receptionist": "Customer Service/Support",
+        "Front Desk Officer": "Customer Service/Support",
+
+        # Misc / Freelance
+        "Freelancer": "Freelance"
+    }
+
+
     def __init__(self, encoder):
         self.model = SentenceTransformer(encoder, trust_remote_code=True)
 
@@ -244,5 +470,13 @@ class JobTitles:
 
         if best.values.item() >= threshold:
             return self.titles[best.indices.item()]
+
+        return ""
+
+    def job_filed(self, job: str) -> str:
+        title = self.find_title(job)
+
+        if title:
+            return self.job_field_mapping[title]
 
         return ""

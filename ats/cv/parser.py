@@ -1,28 +1,19 @@
 from .base import ProjectInfo, PublicationInfo, ExperienceInfo, EducationInfo, CourseInfo, CV, CVSection
-from .section_info import SectionInfo
-from .config import ATSConfig
-from .job_title_info import JobTitles
+from ..cv.section_info import SectionInfo
+from ..config import ParserConfig
+from ..job_title_info import JobTitles
+from ..utils.common import get_line
 import validators
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 import re
 
-def get_line(data: list[str]) -> str:
-    if not data:
-        return ""
-
-    val = data[0]
-    data.pop(0)
-
-    return val
-
-
 class CVParser(object):
-    def __init__(self, encoder: str, config: ATSConfig = None):
+    def __init__(self, encoder: str, config: ParserConfig = None):
         self.sections = SectionInfo(encoder)
         self.job_titles = JobTitles(encoder)
 
         if not config:
-            self.config = ATSConfig()
+            self.config = ParserConfig()
         else:
             self.config = config
 
@@ -66,13 +57,19 @@ class CVParser(object):
 
     def _parse_base_info(self, data: list[str]) -> dict[str, str]:
 
+        phone_regex = r"\+?\d{9,16}"
         result = {
             "Name": get_line(data),
-            "Title": get_line(data),
+            "Title": "No Title",
             "Email": "",
             "Phone": ""
         }
+
         line = get_line(data)
+
+        if line.replace(" ", "").replace("|", "").isalpha():
+            result["Title"] = line
+            line = get_line(data)
 
         section = self.sections.find_section(line)
 
@@ -84,7 +81,7 @@ class CVParser(object):
             for val in vals:
                 if validators.email(val):
                     result["Email"] = val
-                elif val.isnumeric() or val.startswith("+"):
+                elif re.fullmatch(phone_regex, val):
                     result["Phone"] = val
                 elif val.isalpha() and not "Location" in result.keys():
                     result["Location"] = val
@@ -95,7 +92,7 @@ class CVParser(object):
 
         result = []
 
-        section = self._get_section(data)
+        section = self._get_section(data, " ")
 
         spliter = RecursiveCharacterTextSplitter(
             chunk_size= self.config.text_spliter_chunk_size,

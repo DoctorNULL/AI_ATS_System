@@ -1,5 +1,5 @@
 from sentence_transformers import SentenceTransformer
-from .base import CVSection
+from ats.cv.base import CVSection
 
 class SectionInfo(object):
 
