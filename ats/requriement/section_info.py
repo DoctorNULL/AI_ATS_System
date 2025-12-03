@@ -180,8 +180,8 @@ class RequirementInfo:
 
     }
 
-    def __init__(self, encoder: str):
-        self.model = SentenceTransformer(encoder, trust_remote_code=True)
+    def __init__(self, encoder: SentenceTransformer):
+        self.model = encoder
 
         self._encodes = {}
 

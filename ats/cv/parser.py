@@ -1,3 +1,5 @@
+from sentence_transformers import SentenceTransformer
+
 from .base import ProjectInfo, PublicationInfo, ExperienceInfo, EducationInfo, CourseInfo, CV, CVSection
 from ..cv.section_info import SectionInfo
 from ..config import ParserConfig
@@ -9,8 +11,9 @@ import re
 
 class CVParser(object):
     def __init__(self, encoder: str, config: ParserConfig = None):
-        self.sections = SectionInfo(encoder)
-        self.job_titles = JobTitles(encoder)
+        self.model = SentenceTransformer(encoder, trust_remote_code=True)
+        self.sections = SectionInfo(self.model)
+        self.job_titles = JobTitles(self.model)
 
         if not config:
             self.config = ParserConfig()
@@ -200,7 +203,7 @@ class CVParser(object):
                 current_start = x[0]
                 current_end = x[2]
             elif line.lower() in self.present_keywords:
-                current_end = line
+                current_end = "present"
 
         if current_title and current_location:
             x : EducationInfo = {
@@ -290,7 +293,7 @@ class CVParser(object):
             else:
                 if current_title:
                     if line in self.present_keywords:
-                        current_end = line
+                        current_end = "present"
                     elif (not current_company and (line.replace(",", "").replace(".", "").replace(" ", "").isalpha()
                                                   or re.fullmatch(self.special_words_pattern, line))
                           and not re.fullmatch(self.date_pattern, line) and not line in self.present_keywords):
@@ -302,7 +305,7 @@ class CVParser(object):
                         try:
                             if re.fullmatch(self.date_pattern, lines[i + 2]) or lines[i + 2] in self.present_keywords:
                                 current_start = line
-                                current_end = lines[i + 2]
+                                current_end = "present" if lines[i+2] in self.present_keywords else lines[i + 2]
                                 skip_counter = 2
                         except:
                             pass
@@ -394,12 +397,12 @@ class CVParser(object):
             else:
                 if current_title:
                     if line in self.present_keywords:
-                        current_end = line
+                        current_end = "present"
                     elif re.fullmatch(self.date_pattern, line):
                         try:
                             if re.fullmatch(self.date_pattern, lines[i + 2]) or lines[i + 2] in self.present_keywords:
                                 current_start = line
-                                current_end = lines[i + 2]
+                                current_end = lines[i + 2] if lines[i + 2] not in self.present_keywords else "present"
                                 skip_counter = 2
                         except:
                             pass
@@ -490,7 +493,7 @@ class CVParser(object):
             else:
                 if current_title:
                     if line in self.present_keywords:
-                        current_date = line
+                        current_date = "present"
                     elif re.fullmatch(self.date_pattern, line):
                         current_date = line
                     elif not publishers and all([word.isupper() or word.istitle for word in line.split(",")]):
@@ -585,12 +588,12 @@ class CVParser(object):
             else:
                 if current_title:
                     if line in self.present_keywords:
-                        current_end = line
+                        current_end = "present"
                     elif re.fullmatch(self.date_pattern, line):
                         try:
                             if re.fullmatch(self.date_pattern, lines[i + 2]) or lines[i + 2] in self.present_keywords:
                                 current_start = line
-                                current_end = lines[i + 2]
+                                current_end = lines[i + 2] if lines[i + 2] not in self.present_keywords else "present"
                                 skip_counter = 2
                         except:
                             pass

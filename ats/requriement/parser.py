@@ -10,10 +10,9 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 class RequirementParser(object):
     def __init__(self, encoder: str, config: ParserConfig = None):
-        self.encoder = encoder
         self.model = SentenceTransformer(encoder, trust_remote_code=True)
 
-        self.info = RequirementInfo(encoder)
+        self.info = RequirementInfo(self.model)
         self.skills = SkillsInfo()
 
         if config:
@@ -54,7 +53,7 @@ class RequirementParser(object):
         if "title:" not in line.lower().replace(" ", ""):
             raise Exception("Title : <Jop Title Required> should be the first line")
 
-        titles = JobTitles(self.encoder)
+        titles = JobTitles(self.model)
         title = line.split(":")[1]
         title = titles.find_title(title, self.config.title_similarity_threshold)
         field = titles.job_filed(title)

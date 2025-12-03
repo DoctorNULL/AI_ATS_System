@@ -458,8 +458,8 @@ class JobTitles:
     }
 
 
-    def __init__(self, encoder):
-        self.model = SentenceTransformer(encoder, trust_remote_code=True)
+    def __init__(self, encoder: SentenceTransformer):
+        self.model = encoder
 
         self._encodes = self.model.encode(self.titles)
 
@@ -473,8 +473,8 @@ class JobTitles:
 
         return ""
 
-    def job_filed(self, job: str) -> str:
-        title = self.find_title(job)
+    def job_filed(self, job: str, threshold = 0.5) -> str:
+        title = self.find_title(job, threshold)
 
         if title:
             return self.job_field_mapping[title]
